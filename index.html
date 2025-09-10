@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Online Ticket Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #0077cc;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #005fa3;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    form {
+      display: grid;
+      gap: 15px;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    button {
+      background-color: #0077cc;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e1f5fe;
+      border-left: 5px solid #0077cc;
+    }
+
+    .seat-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .seat {
+      background: #ccc;
+      text-align: center;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .seat.selected {
+      background: #4caf50;
+      color: white;
+    }
+
+    .seat.occupied {
+      background: #e53935;
+      color: white;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+      .seat-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Online Ticket Booking</h1>
+    <p>Book tickets for your favorite events!</p>
+  </header>
+
+  <nav>
+    <a href="#book">Book Now</a>
+    <a href="#events">Events</a>
+  </nav>
+
+  <div class="container" id="book">
+    <h2>Book Your Ticket</h2>
+    <form id="bookingForm">
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" required>
+
+      <label for="event">Select Event:</label>
+      <select id="event" required>
+        <option value="">-- Choose an Event --</option>
+        <option value="concert">Music Concert ($20)</option>
+        <option value="movie">Movie Premiere ($15)</option>
+        <option value="sports">Sports Match ($25)</option>
+      </select>
+
+      <label for="tickets">Number of Tickets:</label>
+      <input type="number" id="tickets" min="1" value="1" required>
+
+      <label>Select Your Seats:</label>
+      <div class="seat-grid" id="seatGrid">
+        <!-- Seats will be generated via JS -->
+      </div>
+
+      <button type="submit">Book Tickets</button>
+    </form>
+
+    <div class="summary" id="summary" style="display: none;">
+      <h3>Booking Summary</h3>
+      <p><strong>Name:</strong> <span id="summaryName"></span></p>
+      <p><strong>Event:</strong> <span id="summaryEvent"></span></p>
+      <p><strong>Tickets:</strong> <span id="summaryTickets"></span></p>
+      <p><strong>Seats:</strong> <span id="summarySeats"></span></p>
+      <p><strong>Total Price:</strong> $<span id="summaryPrice"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const seatGrid = document.getElementById('seatGrid');
+    const selectedSeats = new Set();
+
+    const seatCount = 15; // Total seats
+    const occupiedSeats = [3, 6]; // Demo: Some seats are taken
+
+    // Generate seat buttons
+    for (let i = 1; i <= seatCount; i++) {
+      const seat = document.createElement('div');
+      seat.classList.add('seat');
+      seat.textContent = `Seat ${i}`;
+      seat.dataset.seatNumber = i;
+
+      if (occupiedSeats.includes(i)) {
+        seat.classList.add('occupied');
+      } else {
+        seat.addEventListener('click', () => {
+          seat.classList.toggle('selected');
+          const seatNumber = seat.dataset.seatNumber;
+
+          if (selectedSeats.has(seatNumber)) {
+            selectedSeats.delete(seatNumber);
+          } else {
+            selectedSeats.add(seatNumber);
+          }
+        });
+      }
+
+      seatGrid.appendChild(seat);
+    }
+
+    // Pricing table
+    const eventPrices = {
+      concert: 20,
+      movie: 15,
+      sports: 25
+    };
+
+    document.getElementById('bookingForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const event = document.getElementById('event').value;
+      const tickets = parseInt(document.getElementById('tickets').value);
+      const seats = Array.from(selectedSeats);
+
+      if (seats.length !== tickets) {
+        alert(`Please select exactly ${tickets} seat(s).`);
+        return;
+      }
+
+      const pricePerTicket = eventPrices[event];
+      const totalPrice = pricePerTicket * tickets;
+
+      // Show summary
+      document.getElementById('summaryName').textContent = name;
+      document.getElementById('summaryEvent').textContent = document.getElementById('event').selectedOptions[0].text;
+      document.getElementById('summaryTickets').textContent = tickets;
+      document.getElementById('summarySeats').textContent = seats.join(', ');
+      document.getElementById('summaryPrice').textContent = totalPrice;
+
+      document.getElementById('summary').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
